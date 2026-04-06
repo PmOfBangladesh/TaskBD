@@ -91,10 +91,11 @@ async def pl_save(message: Message, state: FSMContext):
     try:
         new_prices = json.loads(message.text)
         if not isinstance(new_prices, dict):
-            raise ValueError("Must be a JSON object")
+            await message.answer("❌ JSON must be an object (dict), not a list or value.\nTry again or /cancel.")
+            return
         await _save(new_prices)
         await state.clear()
         await message.answer(f"✅ Price list updated!\n\n{_fmt(new_prices)}")
         logger.info(f"Price list updated by {message.from_user.id}")
-    except Exception as exc:
+    except json.JSONDecodeError as exc:
         await message.answer(f"❌ Invalid JSON: <code>{exc}</code>\nTry again or /cancel.")

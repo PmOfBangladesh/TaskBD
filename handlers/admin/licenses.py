@@ -96,6 +96,20 @@ async def gen_step_pay_method(message: Message, state: FSMContext):
     )
 
 
+# ──────────────────────────────────────────────
+#  Helper: build license key prefix from mentor name
+# ──────────────────────────────────────────────
+
+def _make_prefix(mentor_key: str, licenses: dict) -> str:
+    """Return alphanumeric prefix from mentor's name, fallback to 'SML'."""
+    if mentor_key and mentor_key in licenses:
+        raw    = licenses[mentor_key].get("name", "").upper()
+        prefix = "".join(c for c in raw if c.isalnum())[:10]
+        if prefix:
+            return prefix
+    return "SML"
+
+
 @router.message(LicenseGen.mentor_key)
 @admin_only
 async def gen_step_mentor_key(message: Message, state: FSMContext):
@@ -145,11 +159,9 @@ async def _finish_gen(message: Message, state: FSMContext):
     mentor_bonus = data.get("mentor_bonus", 0.0)
     licenses     = await load_licenses()
 
-    prefix = "SML"
-    if mentor_key and mentor_key in licenses:
-        raw    = licenses[mentor_key].get("name", "SML").upper()
-        prefix = "".join(c for c in raw if c.isalnum())[:10] or "SML"
+    prefix = _make_prefix(mentor_key, licenses)
 
+    prefix = _make_prefix(mentor_key, licenses)
     key = f"{prefix}-SML-" + "".join(
         random.choices(string.ascii_uppercase + string.digits, k=6)
     )
