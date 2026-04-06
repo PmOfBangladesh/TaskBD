@@ -9,43 +9,61 @@
 
 ```
 TaskBD/
-├── main.py              # Entry point
+├── main.py              # Entry point — registers all 4 top-level routers
 ├── config.py            # All settings (.env reader)
 ├── .env                 # Secrets (never commit)
 │
 ├── core/
-│   ├── bot.py
-│   ├── database.py
-│   ├── logger.py
-│   ├── state.py
-│   └── constants.py
+│   ├── bot.py           # Bot + Dispatcher singletons
+│   ├── database.py      # All JSON/CSV I/O (async-safe)
+│   ├── logger.py        # Multi-file structured logging
+│   ├── state.py         # All FSM state groups
+│   └── constants.py     # Static strings & emoji maps
 │
 ├── handlers/
-│   ├── user.py
-│   ├── admin.py
-│   ├── callbacks.py
-│   ├── broadcast.py
-│   ├── system.py
-│   └── pricelist.py
+│   ├── admin/           # Admin panel (split by responsibility)
+│   │   ├── panel.py         # /admin command & keyboard
+│   │   ├── licenses.py      # License gen & check FSM
+│   │   ├── reports.py       # Final report & 2FA report FSM
+│   │   ├── stats.py         # Live stats, all-time stats, reset
+│   │   ├── users.py         # Add balance & delete user FSM
+│   │   ├── maintenance.py   # Spam list, ban/unban, XLSX exports
+│   │   ├── broadcast.py     # Broadcast to all users
+│   │   └── pricing.py       # Price list view & edit
+│   │
+│   ├── user/            # User-facing handlers
+│   │   ├── start.py         # /start, license key, main menu
+│   │   ├── profile.py       # Profile view & payment change
+│   │   ├── stats.py         # Live stats & 2FA stats
+│   │   └── withdraw.py      # Withdraw request flow
+│   │
+│   ├── callbacks/       # Payment screenshot & dispatch flow
+│   │   └── payment.py
+│   │
+│   └── system/          # System diagnostics
+│       ├── ping.py          # /ping — server status
+│       ├── speedtest.py     # /speedtest
+│       ├── restart.py       # /restart
+│       └── logs.py          # /logs — paginated log viewer
 │
 ├── modules/
-│   ├── stats_manager.py
-│   ├── report_builder.py
-│   ├── log_viewer.py
-│   ├── link_watcher.py
-│   └── spam_detector.py
+│   ├── stats_manager.py    # Live stats page builder
+│   ├── report_builder.py   # Final report calculation
+│   ├── log_viewer.py       # Log pagination & formatting
+│   ├── link_watcher.py     # URL monitor (extensible)
+│   └── spam_detector.py    # Rate-limit & ban tracker
 │
 ├── helpers/
-│   ├── utils.py
-│   ├── decorators.py
-│   ├── formatter.py
-│   ├── xlsx_builder.py
-│   └── validators.py
+│   ├── utils.py            # Channel check, admin notify
+│   ├── decorators.py       # admin_only, spam_guard, private_only
+│   ├── formatter.py        # Message formatters
+│   ├── xlsx_builder.py     # XLSX generation
+│   └── validators.py       # Input validators
 │
-├── data/
-├── users/
-├── logs/
-└── exports/
+├── data/                # JSON storage (auto-created)
+├── users/               # Per-user stat files
+├── logs/                # Rotating log files
+└── exports/             # Report exports
 ```
 
 ---

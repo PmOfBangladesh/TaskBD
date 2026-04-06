@@ -160,8 +160,6 @@ async def get_all_time_stats() -> list[dict]:
 # ─── Stats ───────────────────────────────────────────────────
 
 async def get_today_stats(username: str) -> dict:
-    from config import STAT_FILES
-    from core.constants import STAT_FILES as SF
     user_folder = os.path.join(USERS_DIR, username)
     stats = {"aprv": 0, "sub": 0, "rej": 0, "sus": 0}
     file_map = {
