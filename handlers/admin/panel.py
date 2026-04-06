@@ -1,13 +1,20 @@
 # ============================================================
 #  handlers/admin/panel.py  —  Admin panel & main /admin cmd
 # ============================================================
-from aiogram import Router
+import os
+import sys
+
+import psutil
+import platform
+from datetime import datetime
+
+from aiogram import Router, F
 from aiogram.filters import Command
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 from core.logger import get_logger, get_admin_logger
 from helpers.decorators import admin_only
-from config import OWNER_ID
+from config import ADMIN_IDS, OWNER_ID, BOT_NAME, BOT_VERSION
 
 router = Router(name="admin_panel")
 logger = get_logger("Admin")
@@ -69,8 +76,8 @@ def admin_panel_markup(user_id: int = 0) -> InlineKeyboardMarkup:
         ],
     ]
 
-    # Owner-only row — visible only to OWNER
-    if user_id and user_id == OWNER_ID:
+    # Owner-only row — visible only to OWNER (and only when OWNER_ID is configured)
+    if OWNER_ID != 0 and user_id == OWNER_ID:
         rows.append([
             InlineKeyboardButton(text="👑 Add Admin",      callback_data="own_addadmin"),
             InlineKeyboardButton(text="🗑 Remove Admin",   callback_data="own_removeadmin"),
@@ -111,10 +118,6 @@ async def cmd_admin_panel(message: Message):
 #   since they live in other routers but need a
 #   panel callback entry-point)
 # ──────────────────────────────────────────────
-
-from aiogram import F
-from aiogram.types import CallbackQuery
-from config import ADMIN_IDS
 
 
 @router.callback_query(F.data.in_({"adm_ping", "adm_speedtest", "adm_logs", "adm_restart"}))
@@ -262,7 +265,6 @@ async def handle_restart_confirm(call: CallbackQuery):
     else:
         await call.answer("🔄 Restarting…")
         await call.message.edit_text("🔄 <b>Restarting bot…</b>", reply_markup=None)
-        import os, sys
         logger.info(f"Restart via panel | uid={call.from_user.id}")
         os.execv(sys.executable, [sys.executable] + sys.argv)
 

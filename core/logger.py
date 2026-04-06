@@ -32,7 +32,7 @@ _ICONS = {
     "CRITICAL": "🔥",
 }
 
-_USE_COLOR = sys.stdout.isatty() or os.getenv("FORCE_COLOR", "0") == "1"
+_USE_COLOR = sys.stdout.isatty() or os.getenv("FORCE_COLOR", "").lower() in ("1", "true", "yes")
 
 
 class _BotConsoleFormatter(logging.Formatter):

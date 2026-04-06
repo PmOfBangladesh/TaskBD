@@ -82,8 +82,7 @@ async def ban_step_uid(message: Message, state: FSMContext):
     except ValueError:
         await message.answer("❌ Invalid user ID. Enter a number:")
         return
-    await state.update_data(uid=uid)
-    await state.set_state(BanUser.reason)
+    await state.clear()
     markup = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text="♾️ Permanent",  callback_data=f"ban_perm_{uid}"),
         InlineKeyboardButton(text=f"⏰ {SPAM_BAN_MINS} min", callback_data=f"ban_temp_{uid}"),
@@ -93,7 +92,6 @@ async def ban_step_uid(message: Message, state: FSMContext):
         f"🚫 <b>Choose ban type for <code>{uid}</code>:</b>",
         reply_markup=markup,
     )
-    await state.clear()  # Clear FSM — rest handled by callbacks
 
 
 @router.callback_query(F.data.startswith("ban_perm_"))

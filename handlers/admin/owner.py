@@ -4,8 +4,6 @@
 #  All require OWNER_ID — not available to regular admins
 # ============================================================
 import asyncio
-import os
-import sys
 
 from aiogram import Router, F
 from aiogram.filters import Command
@@ -97,7 +95,7 @@ async def handle_reboot_confirm(call: CallbackQuery):
         )
         alog.info(f"Server reboot triggered | uid={call.from_user.id}")
         logger.warning(f"SERVER REBOOT via panel | uid={call.from_user.id}")
-        os.system("sudo reboot")
+        await asyncio.create_subprocess_exec("sudo", "reboot")
 
 
 @router.callback_query(F.data.startswith("own_removeconfirm_"))
@@ -218,11 +216,11 @@ async def _send_admin_list_for_removal(chat_id: int):
 
 
 async def _do_remove_admin(message: Message, uid: int):
-    if uid not in ADMIN_IDS:
-        await message.answer(f"⚠️ User <code>{uid}</code> is not an admin.")
-        return
     if uid == OWNER_ID:
         await message.answer("❌ Cannot remove the owner from admins.")
+        return
+    if uid not in ADMIN_IDS:
+        await message.answer(f"⚠️ User <code>{uid}</code> is not an admin.")
         return
     ADMIN_IDS.remove(uid)
     await message.answer(
