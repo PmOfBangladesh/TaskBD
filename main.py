@@ -12,7 +12,7 @@ from aiogram.types import BotCommand, BotCommandScopeAllPrivateChats
 
 from core.bot import bot, dp
 from core.logger import get_logger
-from config import ADMIN_IDS, DATA_DIR, USERS_DIR, LOGS_DIR, EXPORTS_DIR, BOT_NAME, BOT_VERSION
+from config import ADMIN_IDS, OWNER_ID, DATA_DIR, USERS_DIR, LOGS_DIR, EXPORTS_DIR, BOT_NAME, BOT_VERSION
 
 # ── Routers ─────────────────────────────────────────────────
 from handlers.system    import router as system_router
@@ -63,21 +63,30 @@ async def _set_commands():
     admin_text = (
         "🤖 <b>Admin Commands</b>\n"
         "━━━━━━━━━━━━━━━━━━\n"
-        "/admin      — Admin Panel\n"
-        "/live       — Live user stats\n"
-        "/resetstats — Reset stats\n"
-        "/ping       — System status\n"
-        "/speedtest  — Speed test\n"
-        "/logs       — View bot logs\n"
-        "/broadcast  — Send to all users\n"
-        "/ban        — Ban a user\n"
-        "/unban      — Unban a user\n"
-        "/restart    — Restart bot\n"
-        "/pricelist  — View / Edit price list"
+        "/admin        — Admin Panel (full inline menu)\n"
+        "/live         — Live user stats\n"
+        "/resetstats   — Reset stats\n"
+        "/ping         — System status\n"
+        "/speedtest    — Speed test\n"
+        "/logs         — View bot logs\n"
+        "/broadcast    — Send to all users\n"
+        "/ban          — Ban a user\n"
+        "/unban        — Unban a user\n"
+        "/restart      — Restart bot\n"
+        "/pricelist    — View / Edit price list"
+    )
+    owner_text = (
+        "\n\n👑 <b>Owner Commands</b>\n"
+        "━━━━━━━━━━━━━━━━━━\n"
+        "/addadmin     — Add an admin\n"
+        "/removeadmin  — Remove an admin\n"
+        "/shell        — Run shell command\n"
+        "/reboot       — Reboot server"
     )
     for admin_id in ADMIN_IDS:
         try:
-            await bot.send_message(admin_id, admin_text)
+            extra = owner_text if admin_id == OWNER_ID else ""
+            await bot.send_message(admin_id, admin_text + extra)
         except Exception:
             pass
 

@@ -18,6 +18,9 @@ logger = get_logger("System.Restart")
 @router.message(Command("restart"))
 @admin_only
 async def cmd_restart(message: Message):
-    await message.answer("🔄 <b>Restarting bot…</b>")
+    await message.answer(
+        "🔄 <b>Restarting bot…</b>\n"
+        "<i>The bot will be back in a moment.</i>"
+    )
     logger.info(f"Restart triggered | by={message.from_user.id}")
     os.execv(sys.executable, [sys.executable] + sys.argv)
