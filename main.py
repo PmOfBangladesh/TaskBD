@@ -19,8 +19,6 @@ from handlers.system    import router as system_router
 from handlers.user      import router as user_router
 from handlers.admin     import router as admin_router
 from handlers.callbacks import router as callbacks_router
-from handlers.broadcast import router as broadcast_router
-from handlers.pricelist import router as pricelist_router
 
 logger = get_logger("Main")
 
@@ -125,8 +123,6 @@ def _register_routers():
     dp.include_router(system_router)
     dp.include_router(callbacks_router)
     dp.include_router(admin_router)
-    dp.include_router(broadcast_router)
-    dp.include_router(pricelist_router)
     dp.include_router(user_router)   # user last (catches generic text)
 
 

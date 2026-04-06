@@ -1,5 +1,5 @@
 # ============================================================
-#  handlers/pricelist.py  —  /pricelist command
+#  handlers/admin/pricing.py  —  Price list view & edit
 # ============================================================
 import json
 import os
@@ -7,22 +7,29 @@ import os
 from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import (
+    Message, CallbackQuery,
+    InlineKeyboardMarkup, InlineKeyboardButton,
+)
 
 from core.state import PriceList
 from core.logger import get_logger
 from helpers.decorators import admin_only
-from config import PRICELIST_FILE
+from config import PRICELIST_FILE, ADMIN_IDS
 
-router = Router(name="pricelist")
-logger = get_logger("PriceList")
+router = Router(name="admin_pricing")
+logger = get_logger("Admin.Pricing")
 
-_DEFAULT = {
+_DEFAULT: dict = {
     "Regular Account": "৳5.00",
     "2FA Account":     "৳8.00",
     "Premium Account": "৳10.00",
 }
 
+
+# ──────────────────────────────────────────────
+#  I/O helpers
+# ──────────────────────────────────────────────
 
 async def _load() -> dict:
     if os.path.exists(PRICELIST_FILE):
@@ -46,16 +53,24 @@ def _fmt(prices: dict) -> str:
     return "\n".join(lines)
 
 
+# ──────────────────────────────────────────────
+#  /pricelist  command
+# ──────────────────────────────────────────────
+
 @router.message(Command("pricelist"))
 async def cmd_pricelist(message: Message):
     prices = await _load()
     markup = None
-    if message.from_user.id in __import__("config").ADMIN_IDS:
+    if message.from_user.id in ADMIN_IDS:
         markup = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="✏️ Edit Price List", callback_data="pl_edit")]
         ])
     await message.answer(_fmt(prices), reply_markup=markup)
 
+
+# ──────────────────────────────────────────────
+#  Edit price list (admin only)
+# ──────────────────────────────────────────────
 
 @router.callback_query(F.data == "pl_edit")
 @admin_only
@@ -75,9 +90,12 @@ async def cb_pl_edit(call: CallbackQuery, state: FSMContext):
 async def pl_save(message: Message, state: FSMContext):
     try:
         new_prices = json.loads(message.text)
-        assert isinstance(new_prices, dict)
+        if not isinstance(new_prices, dict):
+            await message.answer("❌ JSON must be an object (dict), not a list or value.\nTry again or /cancel.")
+            return
         await _save(new_prices)
         await state.clear()
         await message.answer(f"✅ Price list updated!\n\n{_fmt(new_prices)}")
-    except Exception:
-        await message.answer("❌ Invalid JSON. Try again or /cancel.")
+        logger.info(f"Price list updated by {message.from_user.id}")
+    except json.JSONDecodeError as exc:
+        await message.answer(f"❌ Invalid JSON: <code>{exc}</code>\nTry again or /cancel.")
