@@ -7,6 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN            = os.getenv("BOT_TOKEN", "")
+OWNER_ID         = int(os.getenv("OWNER_ID", "0"))
+if not OWNER_ID:
+    import warnings
+    warnings.warn("OWNER_ID is not set — owner-only commands will be unavailable.", stacklevel=1)
 ADMIN_IDS        = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
 GROUP_ID         = int(os.getenv("GROUP_ID", "0"))
 LOG_ADMIN_ID     = int(os.getenv("LOG_ADMIN_ID", "0"))

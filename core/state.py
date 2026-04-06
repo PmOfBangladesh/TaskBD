@@ -54,6 +54,23 @@ class Screenshot(StatesGroup):
     waiting = State()
 
 
+class BanUser(StatesGroup):
+    user_id = State()
+    reason  = State()
+
+
+class AddAdmin(StatesGroup):
+    user_id = State()
+
+
+class RemoveAdmin(StatesGroup):
+    user_id = State()
+
+
+class ShellCmd(StatesGroup):
+    command = State()
+
+
 class PriceList(StatesGroup):
     editing = State()
 
